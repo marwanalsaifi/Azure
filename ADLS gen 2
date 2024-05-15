@@ -1,0 +1,9 @@
+To get information about the configuration of Blob, Queue, Table, and File services in storage accounts, use this query:
+
+Resources
+| where type == 'microsoft.storage/storageaccounts'
+| extend blobLogging = properties.blobServices.defaultServiceVersion,
+        queueLogging = properties.queueServices.defaultServiceVersion,
+        tableLogging = properties.tableServices.defaultServiceVersion,
+        fileLogging = properties.fileServices.defaultServiceVersion
+| project name, resourceGroup, location, blobLogging, queueLogging, tableLogging, fileLogging
