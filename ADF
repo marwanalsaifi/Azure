@@ -1,0 +1,33 @@
+Resources
+| where type == "microsoft.datafactory/factories"
+==============
+azurermresources
+| where type == "microsoft.datafactory/factories/pipelines"
+| project name, properties.authorization
+============
+Resources
+| where type == "microsoft.datafactory/factories/integrationruntimes"
+============
+Resources
+| where type == "microsoft.datafactory/factories/linkedservices"
+| project name, properties.type, properties.typeProperties.authenticationType
+===============
+AzureActivity
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where ActivityStatus != "Succeeded"
+==============
+Resources
+| where type == "microsoft.datafactory/factories"
+| project name, identity
+================
+Resources
+| where type == "microsoft.datafactory/factories/datasets"
+| project name, properties
+========================
+Resources
+| where type == "microsoft.datafactory/factories/triggers"
+| project name, properties
+=========================
+Resources
+| where type == "microsoft.datafactory/factories/linkedservices"
+| project name, properties.type, properties.typeProperties
