@@ -31,3 +31,7 @@ Resources
 Resources
 | where type == "microsoft.datafactory/factories/linkedservices"
 | project name, properties.type, properties.typeProperties
+======================
+SigninLogs
+| where ResourceDisplayName == "Azure Data Factory"
+| project UserPrincipalName, ConditionalAccessStatus, ConditionalAccessPolicies, AuthenticationRequirement
