@@ -1,0 +1,75 @@
+from databricks_api import DatabricksAPI
+
+# Replace these with your Databricks workspace details
+DATABRICKS_HOST = 'https://<your-databricks-workspace>'
+DATABRICKS_TOKEN = '<your-databricks-token>'
+
+# Initialize the Databricks API client
+db = DatabricksAPI(
+    host=DATABRICKS_HOST,
+    token=DATABRICKS_TOKEN
+)
+
+# List all clusters
+clusters = db.cluster.list_clusters()
+for cluster in clusters['clusters']:
+    print(f"Cluster Name: {cluster['cluster_name']}, State: {cluster['state']}, Node Type: {cluster['node_type_id']}")
+----------------------------------------------------------------------------------------------------------------------
+# List all jobs
+jobs = db.jobs.list_jobs()
+for job in jobs['jobs']:
+    print(f"Job ID: {job['job_id']}, Name: {job['settings']['name']}, Schedule: {job['settings'].get('schedule')}")
+---------------------------------------------------------------------------------------------------------------------
+import re
+
+# Function to search for hardcoded secrets
+def search_notebook_for_secrets(notebook_path):
+    notebook_content = db.workspace.export_workspace(notebook_path, format='SOURCE')['content']
+    secrets_pattern = re.compile(r'(?i)(password|secret|token|key) ?= ?[\'\"]')
+    if secrets_pattern.search(notebook_content):
+        print(f"Potential secret found in notebook: {notebook_path}")
+
+# List all notebooks
+workspace_items = db.workspace.list('/')
+
+# Check each notebook for secrets
+for item in workspace_items['objects']:
+    if item['object_type'] == 'NOTEBOOK':
+        search_notebook_for_secrets(item['path'])
+---------------------------------------------------------------------------------------------------------------------
+# List installed libraries on each cluster
+for cluster in clusters['clusters']:
+    cluster_id = cluster['cluster_id']
+    libraries = db.libraries.cluster_status(cluster_id)
+    print(f"Cluster: {cluster['cluster_name']}, Libraries: {libraries['library_statuses']}")
+----------------------------------------------------------------------------------------------------------------------
+# Get audit logs (assuming you have set up logging to an external location)
+import requests
+
+LOG_ANALYTICS_WORKSPACE_ID = '<your-log-analytics-workspace-id>'
+LOG_ANALYTICS_SHARED_KEY = '<your-log-analytics-shared-key>'
+QUERY = """
+AzureDiagnostics
+| where ResourceType == "DATBRICKS" 
+| take 100
+"""
+
+headers = {
+    "Content-Type": "application/json",
+    "Log-Type": "DatabricksAuditLog",
+    "x-ms-date": datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'),
+    "Authorization": "SharedKey {}:{}".format(LOG_ANALYTICS_WORKSPACE_ID, LOG_ANALYTICS_SHARED_KEY)
+}
+
+response = requests.post(f"https://api.loganalytics.io/v1/workspaces/{LOG_ANALYTICS_WORKSPACE_ID}/query", headers=headers, json={"query": QUERY})
+
+logs = response.json()
+print(logs)
+----------------------------------------------------------------------------------------------------------------------------------
+# List all secret scopes
+secret_scopes = db.secret.list_scopes()
+for scope in secret_scopes['scopes']:
+    print(f"Scope Name: {scope['name']}")
+    secrets = db.secret.list_secrets(scope['name'])
+    for secret in secrets['secrets']:
+        print(f"  Secret Name: {secret['key']}, Last Updated: {secret['last_updated_timestamp']}")
