@@ -1,0 +1,50 @@
+resources
+| where type == "microsoft.databricks/workspaces"
+| project name, location, properties, id
+
+resources
+| where type == "microsoft.network/virtualnetworks"
+| project name, location, properties, id
+
+resources
+| where type == "microsoft.network/virtualnetworks/subnets"
+| project name, properties.addressPrefix, properties, id
+
+resources
+| where type == "microsoft.network/virtualnetworks/subnets"
+| project name, properties.addressPrefix, properties, id
+
+resources
+| where type == "microsoft.databricks/workspaces"
+| extend acl = properties.accessControl
+| project name, acl, id
+
+resources
+| where type == "microsoft.storage/storageaccounts"
+| project name, location, properties, id
+
+resources
+| where type == "microsoft.keyvault/vaults"
+| project name, location, properties, id
+
+resources
+| where type == "microsoft.network/publicIPAddresses"
+| project name, location, properties.ipAddress, id
+
+resources
+| where type == "microsoft.network/networksecuritygroups"
+| mv-expand rules = properties.securityRules
+| where rules.properties.access == "Allow"
+| project name, rules.properties.destinationPortRange, rules.properties.sourceAddressPrefix, rules.properties.destinationAddressPrefix, id
+
+aadresources
+| where type == "Microsoft.AAD/b2cDirectories"
+| project name, properties.displayName, properties.tenantId, id
+
+resources
+| where type == "microsoft.managedidentity/userassignedidentities"
+| project name, location, properties, id
+
+databricksresources
+| where type == "microsoft.databricks/workspaces/clusters"
+| project name, properties.clusterConfig, id
