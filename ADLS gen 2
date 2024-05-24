@@ -7,3 +7,14 @@ Resources
         tableLogging = properties.tableServices.defaultServiceVersion,
         fileLogging = properties.fileServices.defaultServiceVersion
 | project name, resourceGroup, location, blobLogging, queueLogging, tableLogging, fileLogging
+========================================================
+Resources
+| where type == 'microsoft.storage/storageaccounts'
+| project name, resourceGroup, location, properties.supportsHttpsTrafficOnly
+========================================================
+
+Resources
+| where type == 'microsoft.storage/storageaccounts'
+| project name, resourceGroup, location, properties.allowSharedKeyAccess
+
+===========================================================
